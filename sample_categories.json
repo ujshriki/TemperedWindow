@@ -1,0 +1,17 @@
+{
+  "categories": [
+    {
+      "name": "Windows Defender Firewall",
+      "description": "Controls network protection and firewall behavior",
+      "rules": [
+        {"name": "Enable Firewall - Domain", "method": "Registry", "description": "..."},
+        {"name": "Block all inbound", "method": "LGPO", "description": "..."}
+      ]
+    },
+    {
+      "name": "Account Policies",
+      "description": "Password and lockout policies",
+      "rules": []
+    }
+  ]
+}
