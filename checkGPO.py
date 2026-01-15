@@ -1,6 +1,6 @@
-# hardening_wizard.py
+# checkGPO.py
 """
-Hardening Wizard - Phase 1
+Tempered Windows: a Hardening Wizard - Phase 1
 Focus: Admin elevation + Basic GUI + Load & display categories from JSON
 """
 
@@ -34,79 +34,134 @@ def relaunch_as_admin():
 class HardeningWizard:
     def __init__(self, root):
         self.root = root
-        self.root.title("Hardening Wizard - Phase 1")
-        self.root.geometry("900x650")
-        self.root.minsize(800, 550)
+        self.category_vars = {}
 
-        self.categories = []           # list of dicts: {'name': str, 'description': str, 'rules': list}
-        self.category_vars = {}        # name -> BooleanVar for checkbox
+        # ── Window setup ───────────────────────────────────────────────────────
+        self.root.title("Tempered Windows – System Hardening Tool")
+        self.root.geometry("960x680")
+        self.root.minsize(860, 580)
+
+        # set icon (tempered.ico in folder)
+        try:
+            self.root.iconbitmap("tempered.ico")
+        except:
+            pass  # silent fail if file missing
+
+        # ── Modern-ish theme attempt ───────────────────────────────────────────
+        style = ttk.Style()
+        style.theme_use('clam')  # or 'vista', 'xpnative' - depending on OS look
+
+        # Some color tweaks (Windows 11-ish feeling)
+        accent = '#0066cc'  # nice blue
+        bg = '#f8f9fa'
+        fg = '#212529'
+        status_bg = '#e9ecef'
+
+        style.configure('.', background=bg, foreground=fg, font=('Segoe UI', 10))
+        style.configure('TButton', padding=8, font=('Segoe UI', 10, 'bold'))
+        style.map('TButton',
+                  background=[('active', '#005bb5')],
+                  foreground=[('active', 'white')])
+        style.configure('TLabelFrame', background=bg, foreground='#343a40')
+        style.configure('TLabelFrame.Label', font=('Segoe UI', 11, 'bold'))
 
         self._build_ui()
         self._create_menu()
 
-        # Initial message
-        self.status_var.set("Welcome! Please load a hardening rules file to begin.")
+        self.status_var.set("Ready • Load a hardening rules file to begin")
 
     def _build_ui(self):
-        # ── Main container ───────────────────────────────────────────────────────
-        main_frame = ttk.Frame(self.root, padding="10")
+        main_frame = ttk.Frame(self.root, padding="12 10")
         main_frame.pack(fill=tk.BOTH, expand=True)
 
-        # ── Top controls ─────────────────────────────────────────────────────────
+        # Top controls
         top_frame = ttk.Frame(main_frame)
-        top_frame.pack(fill=tk.X, pady=(0, 10))
+        top_frame.pack(fill=tk.X, pady=(0, 12))
 
-        ttk.Button(top_frame, text="Load Rules File", command=self.load_rules_file).pack(side=tk.LEFT, padx=5)
+        load_btn = ttk.Button(top_frame, text="Load Rules File", command=self.load_rules_file)
+        load_btn.pack(side=tk.LEFT, padx=4)
+        # Optional: make first button stand out more
+        load_btn.state(['!disabled'])  # just in case...
 
-        # ── Categories list (left) ───────────────────────────────────────────────
-        left_frame = ttk.LabelFrame(main_frame, text="Security Categories", padding="8")
+        # ── Content area ─────────────────────────────────────────────────────
+        content_frame = ttk.Frame(main_frame)
+        content_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Left - Categories
+        left_frame = ttk.LabelFrame(content_frame, text=" Security Categories ", padding="10")
         left_frame.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 10), expand=False)
+
+        # Small header above list
+        ttk.Label(
+            left_frame,
+            text="Select categories to harden:",
+            font=('Segoe UI', 10, 'bold'),
+            foreground='#495057'
+        ).pack(anchor='w', pady=(0, 6))
 
         self.cat_scroll = ttk.Scrollbar(left_frame)
         self.cat_scroll.pack(side=tk.RIGHT, fill=tk.Y)
 
         self.cat_listbox = tk.Listbox(
             left_frame,
-            width=35,
-            height=25,
+            width=38,
+            height=26,
             yscrollcommand=self.cat_scroll.set,
             selectmode=tk.SINGLE,
-            font=("Segoe UI", 10)
+            font=('Segoe UI', 10),
+            bg='#ffffff',
+            relief='flat',
+            highlightthickness=1,
+            highlightbackground='#ced4da',
+            highlightcolor='#80bdff'
         )
         self.cat_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
         self.cat_scroll.config(command=self.cat_listbox.yview)
 
-        # Bind selection to show description
         self.cat_listbox.bind('<<ListboxSelect>>', self.on_category_select)
 
-        # ── Details / description area (right) ───────────────────────────────────
-        right_frame = ttk.LabelFrame(main_frame, text="Category Details", padding="8")
+        # Right - Details
+        right_frame = ttk.LabelFrame(content_frame, text=" Category Details ", padding="10")
         right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
         self.details_text = tk.Text(
             right_frame,
             wrap=tk.WORD,
-            font=("Segoe UI", 10),
+            font=('Segoe UI', 10),
             height=28,
-            state=tk.DISABLED
+            bg='#ffffff',
+            relief='flat',
+            highlightthickness=1,
+            highlightbackground='#ced4da'
         )
         self.details_text.pack(fill=tk.BOTH, expand=True)
 
-        scrollbar = ttk.Scrollbar(right_frame, command=self.details_text.yview)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.details_text.config(yscrollcommand=scrollbar.set)
+        details_scroll = ttk.Scrollbar(right_frame, command=self.details_text.yview)
+        details_scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        self.details_text.config(yscrollcommand=details_scroll.set)
 
-        # ── Status bar ───────────────────────────────────────────────────────────
-        self.status_var = tk.StringVar(value="Ready")
-        status_bar = ttk.Label(
-            main_frame,
+        # ── Status bar ───────────────────────────────────────────────────────
+        status_container = ttk.Frame(main_frame)
+        status_container.pack(side=tk.BOTTOM, fill=tk.X, pady=(8, 0))
+
+        self.status_var = tk.StringVar(value="Ready • Load a hardening rules file to begin")
+        status_label = ttk.Label(
+            status_container,
             textvariable=self.status_var,
             relief=tk.SUNKEN,
             anchor=tk.W,
-            padding=(5, 3)
+            padding=(12, 6),
+            font=('Segoe UI', 9)
         )
-        status_bar.pack(side=tk.BOTTOM, fill=tk.X)
+        status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+        # Tiny version tag on right
+        ttk.Label(
+            status_container,
+            text="Tempered Windows • Phase 1 • 2026",
+            foreground='#6c757d',
+            font=('Segoe UI', 8)
+        ).pack(side=tk.RIGHT, padx=12)
 
     def _create_menu(self):
         menubar = tk.Menu(self.root)
@@ -124,8 +179,8 @@ class HardeningWizard:
 
     def show_about(self):
         messagebox.showinfo(
-            "About Hardening Wizard",
-            "Hardening Wizard - Phase 1\n\n"
+            "About Tempered Windows",
+            "Tempered Windows: a Hardening Wizard - Phase 1\n\n"
             "A simple GUI for applying Windows hardening rules\n"
             "Currently supports: loading & displaying categories\n\n"
             "Next phases will add apply/revert functionality"
