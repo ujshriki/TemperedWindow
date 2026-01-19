@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a2b0ae14-8fd4-4173-98a5-f947d6ea7929" name="Changes" comment="Phase 1 achievements:&#10;&#10;Admin rights check + auto-relaunch&#10;Nice looking basic Tkinter GUI&#10;Menu bar&#10;Load JSON file&#10;Display categories list&#10;Show category details on selection&#10;Status messages&#10;Basic error handling&#10;&#10;polished UI + app icon">
+    <list default="true" id="a2b0ae14-8fd4-4173-98a5-f947d6ea7929" name="Changes" comment="Quick summary – what changed / improved:&#10;&#10;Scrollable list of categories (important when you have 15–40 categories)&#10;Each row: checkbox + bold name + short description preview&#10;Live status update when checking/unchecking&#10;Cleaner visual hierarchy&#10;Still zero external dependencies&#10;main layout changed to grid">
+      <change afterPath="$PROJECT_DIR$/constants.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/checkGPO.py" beforeDir="false" afterPath="$PROJECT_DIR$/checkGPO.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkGPO.py" beforeDir="false" afterPath="$PROJECT_DIR$/App.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,15 +46,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.checkGPO.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.checkGPO.executor": "Run",
+    "Python.main.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -91,12 +95,30 @@
       <option name="project" value="LOCAL" />
       <updated>1768484968081</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Phase 2 – Checkboxes &amp; Selection Tracking&#10;Main goals for this phase:&#10;&#10;Replace the simple Listbox with category items that have checkboxes&#10;Track which categories are selected&#10;Show basic feedback about current selection&#10;Prepare the ground for the future &quot;Apply&quot; button">
+      <option name="closed" value="true" />
+      <created>1768486420060</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1768486420060</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Quick summary – what changed / improved:&#10;&#10;Scrollable list of categories (important when you have 15–40 categories)&#10;Each row: checkbox + bold name + short description preview&#10;Live status update when checking/unchecking&#10;Cleaner visual hierarchy&#10;Still zero external dependencies&#10;main layout changed to grid">
+      <option name="closed" value="true" />
+      <created>1768486539398</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1768486539398</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Phase 1 achievements:&#10;&#10;Admin rights check + auto-relaunch&#10;Nice looking basic Tkinter GUI&#10;Menu bar&#10;Load JSON file&#10;Display categories list&#10;Show category details on selection&#10;Status messages&#10;Basic error handling" />
     <MESSAGE value="Phase 1 achievements:&#10;&#10;Admin rights check + auto-relaunch&#10;Nice looking basic Tkinter GUI&#10;Menu bar&#10;Load JSON file&#10;Display categories list&#10;Show category details on selection&#10;Status messages&#10;Basic error handling&#10;&#10;polished UI + app icon" />
-    <option name="LAST_COMMIT_MESSAGE" value="Phase 1 achievements:&#10;&#10;Admin rights check + auto-relaunch&#10;Nice looking basic Tkinter GUI&#10;Menu bar&#10;Load JSON file&#10;Display categories list&#10;Show category details on selection&#10;Status messages&#10;Basic error handling&#10;&#10;polished UI + app icon" />
+    <MESSAGE value="Phase 2 – Checkboxes &amp; Selection Tracking&#10;Main goals for this phase:&#10;&#10;Replace the simple Listbox with category items that have checkboxes&#10;Track which categories are selected&#10;Show basic feedback about current selection&#10;Prepare the ground for the future &quot;Apply&quot; button" />
+    <MESSAGE value="Quick summary – what changed / improved:&#10;&#10;Scrollable list of categories (important when you have 15–40 categories)&#10;Each row: checkbox + bold name + short description preview&#10;Live status update when checking/unchecking&#10;Cleaner visual hierarchy&#10;Still zero external dependencies&#10;main layout changed to grid" />
+    <option name="LAST_COMMIT_MESSAGE" value="Quick summary – what changed / improved:&#10;&#10;Scrollable list of categories (important when you have 15–40 categories)&#10;Each row: checkbox + bold name + short description preview&#10;Live status update when checking/unchecking&#10;Cleaner visual hierarchy&#10;Still zero external dependencies&#10;main layout changed to grid" />
   </component>
 </project>

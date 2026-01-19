@@ -1,43 +1,21 @@
-# tempered_windows.py
-"""
-Tempered Windows - Phase 2 (updated)
-- Admin elevation
-- Modern-ish Tkinter GUI
-- Load & parse hardening rules from JSON
-- Scrollable list of categories with checkboxes
-- Live selection count in status bar
-- Clicking category shows details on the right
-- Status bar always visible
-"""
-
+# app.py
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import json
-import sys
-import ctypes
+from pathlib import Path
 
-
-def is_admin() -> bool:
-    try:
-        return ctypes.windll.shell32.IsUserAnAdmin() != 0
-    except:
-        return False
-
-
-def relaunch_as_admin():
-    if not is_admin():
-        ctypes.windll.shell32.ShellExecuteW(
-            None, "runas", sys.executable, " ".join(sys.argv), None, 1
-        )
-        sys.exit(0)
+from constants import (
+    APP_TITLE, WINDOW_GEOMETRY, MIN_WINDOW_SIZE,
+    ACCENT_COLOR, BG_COLOR, STATUS_BG_COLOR
+)
 
 
 class TemperedWindows:
     def __init__(self, root):
         self.root = root
-        self.root.title("Tempered Windows – System Hardening Tool")
-        self.root.geometry("960x680")
-        self.root.minsize(860, 580)
+        self.root.title(APP_TITLE)
+        self.root.geometry(WINDOW_GEOMETRY)
+        self.root.minsize(*MIN_WINDOW_SIZE)
 
         try:
             self.root.iconbitmap("tempered.ico")
@@ -53,33 +31,36 @@ class TemperedWindows:
         self.categories_inner_frame = None
         self.no_categories_label = None
 
-        # Styling
+        self._setup_style()
+        self._build_ui()
+        self._create_menu()
+
+        self.status_var.set("Welcome! Please load a hardening rules file to begin.")
+
+    def _setup_style(self):
         style = ttk.Style()
         try:
             style.theme_use('clam')
         except:
             pass
 
-        style.configure('.', background='#f8f9fa', foreground='#212529', font=('Segoe UI', 10))
+        style.configure('.', background=BG_COLOR, foreground='#212529', font=('Segoe UI', 10))
         style.configure('TButton', padding=8, font=('Segoe UI', 10, 'bold'))
         style.map('TButton', background=[('active', '#005bb5')], foreground=[('active', 'white')])
-        style.configure('TLabelFrame', background='#f8f9fa', foreground='#343a40')
+        style.configure('TLabelFrame', background=BG_COLOR, foreground='#343a40')
         style.configure('TLabelFrame.Label', font=('Segoe UI', 11, 'bold'))
 
-        self._build_ui()
-        self._create_menu()
-
-        self.status_var.set("Welcome! Please load a hardening rules file to begin.")
+        # Selected category row style
+        style.configure('SelectedCategory.TFrame', background='#e6f0ff')
 
     def _build_ui(self):
         main_frame = ttk.Frame(self.root, padding="12 10")
         main_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Using grid for better control over layout priorities
         main_frame.columnconfigure(0, weight=1)
         main_frame.rowconfigure(0, weight=0)   # top
         main_frame.rowconfigure(1, weight=1)   # content
-        main_frame.rowconfigure(2, weight=0)   # status - minimal height
+        main_frame.rowconfigure(2, weight=0)   # status
 
         # Top controls
         top_frame = ttk.Frame(main_frame)
@@ -87,13 +68,13 @@ class TemperedWindows:
 
         ttk.Button(top_frame, text="Load Rules File", command=self.load_rules_file).pack(side=tk.LEFT, padx=4)
 
-        # Content area (categories + details)
+        # Content area
         content_frame = ttk.Frame(main_frame)
         content_frame.grid(row=1, column=0, sticky="nsew")
         content_frame.columnconfigure(1, weight=1)
         content_frame.rowconfigure(0, weight=1)
 
-        # ── Left: Scrollable categories ─────────────────────────────────────
+        # Left: Categories
         left_container = ttk.Frame(content_frame, width=360)
         left_container.grid(row=0, column=0, sticky="ns", padx=(0, 10))
 
@@ -124,7 +105,7 @@ class TemperedWindows:
         )
         self.no_categories_label.pack(anchor='w', padx=16, pady=30)
 
-        # ── Right: Details ───────────────────────────────────────────────────
+        # Right: Details
         right_frame = ttk.LabelFrame(content_frame, text=" Category Details ", padding="10")
         right_frame.grid(row=0, column=1, sticky="nsew")
 
@@ -143,7 +124,7 @@ class TemperedWindows:
         details_scroll.pack(side=tk.RIGHT, fill=tk.Y)
         self.details_text.config(yscrollcommand=details_scroll.set)
 
-        # ── Status bar - always visible, bottom row ─────────────────────────
+        # Status bar
         status_container = ttk.Frame(main_frame)
         status_container.grid(row=2, column=0, sticky="ew", pady=(8, 0))
 
@@ -264,7 +245,6 @@ class TemperedWindows:
                     font=('Segoe UI', 9)
                 ).pack(anchor='w')
 
-            # Make whole row clickable
             row_frame.bind("<Button-1>", lambda e, n=name: self._select_category(n))
             for child in text_frame.winfo_children():
                 child.bind("<Button-1>", lambda e, n=name: self._select_category(n))
@@ -273,17 +253,15 @@ class TemperedWindows:
 
         self._update_selection_status()
 
-        # Auto-select first category if exists
         if self.categories:
             self._select_category(self.categories[0].get("name", "Unnamed"))
 
     def _select_category(self, category_name):
         self.selected_category_name = category_name
 
-        # Simple visual feedback (background change)
         for name, row_frame in self.category_widgets.items():
             if name == category_name:
-                row_frame.configure(style='Selected.TFrame')
+                row_frame.configure(style='SelectedCategory.TFrame')
             else:
                 row_frame.configure(style='')
 
@@ -342,13 +320,3 @@ class TemperedWindows:
 
         self.status_var.set(msg + " • Ready")
 
-
-def main():
-    relaunch_as_admin()
-    root = tk.Tk()
-    app = TemperedWindows(root)
-    root.mainloop()
-
-
-if __name__ == "__main__":
-    main()
